@@ -1,0 +1,20 @@
+{
+  "name": "ckb-band-oracle",
+  "version": "1.0.0",
+  "description": "An oracle for CKB from bandchain",
+  "main": "index.js",
+  "repository": "git@github.com:duanyytop/ckb-band-oracle.git",
+  "author": "duanyytop <duanyytop@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "lint": "eslint src/**/*.js --fix"
+  },
+  "dependencies": {
+    "@bandprotocol/bandchain.js": "^1.0.25",
+    "@bandprotocol/obi.js": "^1.0.7"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0"
+  }
+}
