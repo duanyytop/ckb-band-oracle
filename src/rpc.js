@@ -54,7 +54,7 @@ const getCells = async () => {
   }
 }
 
-const collectInputs = (cells, capacity) => {
+const collectInputs = (cells, needCapacity) => {
   let inputs = []
   let sum = new BN(0)
   cells.forEach(cell => {
@@ -66,21 +66,22 @@ const collectInputs = (cells, capacity) => {
       since: '0x0',
     })
     sum = sum.add(new BN(remove0x(cell.output.capacity), 'hex'))
-    if (sum.add(FEE).cmp(capacity) >= 0) {
+    if (sum.cmp(needCapacity.add(FEE)) >= 0) {
       return
     }
   })
-  if (sum.add(FEE).cmp(capacity) < 0) {
+  if (sum.cmp(needCapacity.add(FEE)) < 0) {
     throw Error('Capacity not enough')
   }
-  return inputs
+  return { inputs, capacity: sum }
 }
 
-const multiOutputs = async length => {
+const multiOutputs = async (inputCapacity, length) => {
+  const lock = await secp256k1LockScript()
   if (length <= 0) return []
   const output = {
     capacity: `0x${EACH_CAPACITY.toString(16)}`,
-    lock: await secp256k1LockScript(),
+    lock,
     type: null,
   }
   let outputs = []
@@ -88,6 +89,12 @@ const multiOutputs = async length => {
   while (len--) {
     outputs.push(output)
   }
+  const changeCapacity = inputCapacity.sub(FEE).sub(EACH_CAPACITY.mul(new BN(length)))
+  outputs.push({
+    capacity: `0x${changeCapacity.toString(16)}`,
+    lock,
+    type: null,
+  })
   return outputs
 }
 
@@ -101,16 +108,17 @@ const multiOutputsData = length => {
   return data
 }
 
-const splitMultiLiveCells = async length => {
-  const liveCells = await getCells()
+const generateEmptyLiveCells = async (liveCells, length) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
+  const { inputs, capacity } = collectInputs(liveCells, EACH_CAPACITY.mul(new BN(length)))
+  const outputs = await multiOutputs(capacity, length)
   const rawTx = {
     version: '0x0',
     cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
     headerDeps: [],
-    inputs: collectInputs(liveCells, EACH_CAPACITY.mul(new BN(length))),
-    outputs: await multiOutputs(length),
-    outputsData: multiOutputsData(length),
+    inputs,
+    outputs,
+    outputsData: multiOutputsData(outputs.length),
   }
   rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
   const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
@@ -121,5 +129,5 @@ const splitMultiLiveCells = async length => {
 
 module.exports = {
   getCells,
-  splitMultiLiveCells,
+  generateEmptyLiveCells,
 }

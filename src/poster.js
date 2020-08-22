@@ -1,10 +1,10 @@
-const { getCells, splitMultiLiveCells } = require('./rpc')
+const { getCells, generateEmptyLiveCells } = require('./rpc')
 const { containBandData } = require('./utils')
 
 const postBandOracle = async () => {
   const liveCells = await getCells()
   if (!containBandData(liveCells)) {
-    await splitMultiLiveCells(10)
+    await generateEmptyLiveCells(liveCells, 10)
   }
 }
 
