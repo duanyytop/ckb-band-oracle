@@ -1,8 +1,8 @@
 const CKB = require('@nervosnetwork/ckb-sdk-core').default
 const fetch = require('node-fetch')
 const BN = require('bn.js')
-const { CKB_INDEXER_URL, CKB_NODE_URL, PRI_KEY } = require('./const')
-const { remove0x } = require('./utils')
+const { CKB_INDEXER_URL, CKB_NODE_URL, PRI_KEY } = require('../utils/const')
+const { remove0x, generateBandData } = require('../utils/utils')
 
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
@@ -127,7 +127,46 @@ const generateEmptyLiveCells = async (liveCells, length) => {
   return txHash
 }
 
+const generateOracleLiveCells = async (liveCells, prices) => {
+  const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
+  const lock = await secp256k1LockScript()
+  const pricesData = prices.map((price, index) => generateBandData(price, index))
+  const requests = []
+  liveCells
+    .filter(cell => new BN(remove0x(cell.output.capacity), 16).cmp(EACH_CAPACITY) === 0)
+    .forEach((cell, index) => {
+      const rawTx = {
+        version: '0x0',
+        cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
+        headerDeps: [],
+        inputs: [
+          {
+            previousOutput: {
+              txHash: cell.out_point.tx_hash,
+              index: cell.out_point.index,
+            },
+            since: '0x0',
+          },
+        ],
+        outputs: [
+          {
+            capacity: `0x${EACH_CAPACITY.sub(FEE).toString(16)}`,
+            lock,
+            type: null,
+          },
+        ],
+        outputsData: [pricesData[index]],
+      }
+      rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
+      const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
+      requests.push(['sendTransaction', signedTx])
+    })
+  const batch = ckb.rpc.createBatchRequest(requests)
+  batch.exec().then(console.info)
+}
+
 module.exports = {
   getCells,
   generateEmptyLiveCells,
+  generateOracleLiveCells,
 }

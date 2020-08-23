@@ -1,4 +1,4 @@
-const { postBandOracle } = require('./poster')
+const { postBandOracle } = require('./poster/poster')
 
 const startPoster = async () => {
   await postBandOracle()
