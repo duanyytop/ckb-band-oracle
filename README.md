@@ -1,5 +1,9 @@
 # ckb-band-oracle
 
+[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/duanyytop/ckb-band-oracle/blob/master/LICENSE)
+[![Github Actions CI](https://github.com/duanyytop/ckb-band-oracle/workflows/CI/badge.svg?branch=master)](https://github.com/duanyytop/ckb-band-oracle/actions)
+[![Telegram Group](https://cdn.rawgit.com/Patrolavia/telegram-badge/8fe3382b/chat.svg)](https://t.me/nervos_ckb_dev)
+
 An oracle fetching oracle data from [BandChain](https://github.com/bandprotocol/bandchain) and posting to [Nervos CKB](https://nervos.org)
 
 ### How to work

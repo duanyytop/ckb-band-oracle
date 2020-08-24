@@ -1,4 +1,4 @@
-const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData, generateBandData } = require('../utils/utils')
+const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData, generateBandData, remove0x } = require('../utils/utils')
 
 describe('Utils tests', () => {
   it('intToU32', async () => {
@@ -27,5 +27,10 @@ describe('Utils tests', () => {
 
   it('generateBandData', async () => {
     expect(generateBandData(391150000, 1, 1598172004)).toBe('0x62616e64015f422b6400000000175079b0')
+  })
+
+  it('remove0x', async () => {
+    expect(remove0x('0x2123a4b2')).toBe('2123a4b2')
+    expect(remove0x('2123a4b2')).toBe('2123a4b2')
   })
 })
