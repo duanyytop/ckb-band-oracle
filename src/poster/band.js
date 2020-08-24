@@ -17,6 +17,7 @@ const fetchBandOracle = async () => {
   const bandChain = new BandChain(endpoint)
   const oracleScript = await bandChain.getOracleScript(oracleScriptId)
   const { result, resolve_time } = await bandChain.getLastMatchingRequestResult(oracleScript, params, validatorCounts)
+  console.info(result, resolve_time)
   return { prices: result.pxs, timestamp: parseInt(resolve_time) }
 }
 
