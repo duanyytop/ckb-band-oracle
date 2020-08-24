@@ -39,7 +39,7 @@ const u32ToInt = hex => {
 }
 
 const intToU64 = num => {
-  if (typeof num !== 'number') {
+  if (typeof num !== 'number' && typeof num !== 'bigint') {
     throw new Error('Invalid data type')
   }
   const u64 = num.toString(16)
@@ -53,8 +53,7 @@ const u64ToInt = hex => {
   return parseInt(remove0x(hex), 16)
 }
 
-const generateBandData = (price, index) => {
-  const timestamp = Math.floor(new Date().getTime() / 1000)
+const generateBandData = (price, index, timestamp) => {
   return `0x${BAND_SYMBOL}${intToHex(index)}${intToU32(timestamp)}${intToU64(price)}`
 }
 

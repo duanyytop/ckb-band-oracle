@@ -1,4 +1,4 @@
-const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData } = require('../utils/utils')
+const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData, generateBandData } = require('../utils/utils')
 
 describe('Utils tests', () => {
   it('intToU32', async () => {
@@ -23,5 +23,9 @@ describe('Utils tests', () => {
     expect(index).toBe(1)
     expect(timestamp).toBe(1598172004)
     expect(price).toBe(391150000)
+  })
+
+  it('generateBandData', async () => {
+    expect(generateBandData(391150000, 1, 1598172004)).toBe('0x62616e64015f422b6400000000175079b0')
   })
 })

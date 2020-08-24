@@ -1,6 +1,6 @@
 const { getCells, generateEmptyLiveCells, generateOracleLiveCells, updateOracleLiveCells } = require('./rpc')
 const { containBandData } = require('../utils/utils')
-const { SYMBOLS } = require('./band')
+const { SYMBOLS, fetchBandOracle } = require('./band')
 
 const postBandOracle = async () => {
   const liveCells = await getCells()
@@ -8,11 +8,11 @@ const postBandOracle = async () => {
   if (liveCells.length < length) {
     await generateEmptyLiveCells(liveCells, length)
   } else if (!containBandData(liveCells)) {
-    const prices = [11592810000, 391150000, 1008400, 24921000, 711550, 378600, 1674000, 15430405, 170369000, 11901599]
+    const { prices } = await fetchBandOracle()
     await generateOracleLiveCells(liveCells, prices)
   } else {
-    const prices = [11592810000, 391150000, 1008400, 24921000, 711550, 378600, 1674000, 15430405, 170369000, 11901599]
-    await updateOracleLiveCells(liveCells, prices)
+    const { prices, timestamp } = await fetchBandOracle()
+    await updateOracleLiveCells(liveCells, prices, timestamp)
   }
 }
 

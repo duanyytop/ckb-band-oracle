@@ -19,38 +19,13 @@ const secp256k1LockScript = async () => {
   }
 }
 
-const getCells = async () => {
-  const lock = await secp256k1LockScript(ARGS)
-  let payload = {
-    id: 1,
-    jsonrpc: '2.0',
-    method: 'get_cells',
-    params: [
-      {
-        script: {
-          code_hash: lock.codeHash,
-          hash_type: lock.hashType,
-          args: lock.args,
-        },
-        script_type: 'lock',
-      },
-      'asc',
-      '0x3e8',
-    ],
-  }
-  const body = JSON.stringify(payload, null, '  ')
-  try {
-    let res = await fetch(CKB_INDEXER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-    })
-    res = await res.json()
-    return res.result.objects
-  } catch (error) {
-    console.error('error', error)
+const generateInput = cell => {
+  return {
+    previousOutput: {
+      txHash: cell.out_point.tx_hash,
+      index: cell.out_point.index,
+    },
+    since: '0x0',
   }
 }
 
@@ -108,6 +83,41 @@ const multiOutputsData = length => {
   return data
 }
 
+const getCells = async () => {
+  const lock = await secp256k1LockScript(ARGS)
+  let payload = {
+    id: 1,
+    jsonrpc: '2.0',
+    method: 'get_cells',
+    params: [
+      {
+        script: {
+          code_hash: lock.codeHash,
+          hash_type: lock.hashType,
+          args: lock.args,
+        },
+        script_type: 'lock',
+      },
+      'asc',
+      '0x3e8',
+    ],
+  }
+  const body = JSON.stringify(payload, null, '  ')
+  try {
+    let res = await fetch(CKB_INDEXER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+    })
+    res = await res.json()
+    return res.result.objects
+  } catch (error) {
+    console.error('error', error)
+  }
+}
+
 const generateEmptyLiveCells = async (liveCells, length) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const { inputs, capacity } = collectInputs(liveCells, EACH_CAPACITY.mul(new BN(length)))
@@ -124,23 +134,12 @@ const generateEmptyLiveCells = async (liveCells, length) => {
   const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
   const txHash = await ckb.rpc.sendTransaction(signedTx)
   console.info(`Transaction has been sent with tx hash ${txHash}`)
-  return txHash
 }
 
-const generateInput = cell => {
-  return {
-    previousOutput: {
-      txHash: cell.out_point.tx_hash,
-      index: cell.out_point.index,
-    },
-    since: '0x0',
-  }
-}
-
-const generateOracleLiveCells = async (liveCells, prices) => {
+const generateOracleLiveCells = async (liveCells, prices, timestamp) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
-  const pricesData = prices.map((price, index) => generateBandData(price, index))
+  const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
   const requests = []
   liveCells
     .filter(cell => new BN(remove0x(cell.output.capacity), 16).cmp(EACH_CAPACITY) === 0)
@@ -164,13 +163,16 @@ const generateOracleLiveCells = async (liveCells, prices) => {
       requests.push(['sendTransaction', signedTx])
     })
   const batch = ckb.rpc.createBatchRequest(requests)
-  batch.exec().then(console.info)
+  batch
+    .exec()
+    .then(console.info)
+    .catch(console.error)
 }
 
-const updateOracleLiveCells = async (liveCells, prices) => {
+const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
-  const pricesData = prices.map((price, index) => generateBandData(price, index))
+  const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
   const requests = []
   liveCells
     .filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
@@ -195,7 +197,10 @@ const updateOracleLiveCells = async (liveCells, prices) => {
       requests.push(['sendTransaction', signedTx])
     })
   const batch = ckb.rpc.createBatchRequest(requests)
-  batch.exec().then(console.info)
+  batch
+    .exec()
+    .then(console.info)
+    .catch(console.error)
 }
 
 module.exports = {

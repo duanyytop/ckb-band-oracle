@@ -14,10 +14,10 @@ const validatorCounts = {
 }
 
 const fetchBandOracle = async () => {
-  const bandchain = new BandChain(endpoint)
-  const oracleScript = await bandchain.getOracleScript(oracleScriptId)
-  const { result, resolve_time } = await bandchain.getLastMatchingRequestResult(oracleScript, params, validatorCounts)
-  return { prices: result.pxs, timestamp: resolve_time }
+  const bandChain = new BandChain(endpoint)
+  const oracleScript = await bandChain.getOracleScript(oracleScriptId)
+  const { result, resolve_time } = await bandChain.getLastMatchingRequestResult(oracleScript, params, validatorCounts)
+  return { prices: result.pxs, timestamp: parseInt(resolve_time) }
 }
 
 module.exports = {
