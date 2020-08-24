@@ -47,6 +47,7 @@ Before starting the project, you should edit the `.env` file with your private k
 ```shell
 $ git clone https://github.com/duanyytop/ckb-band-oracle
 $ cd ckb-band-oracle
+$ yarn install
 $ yarn start
 ```
 
