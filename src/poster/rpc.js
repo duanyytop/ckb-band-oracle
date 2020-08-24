@@ -149,7 +149,7 @@ const generateOracleLiveCells = async (liveCells, prices) => {
         version: '0x0',
         cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
         headerDeps: [],
-        inputs: [generateInput()],
+        inputs: [generateInput(cell)],
         outputs: [
           {
             capacity: `0x${EACH_CAPACITY.sub(FEE).toString(16)}`,
@@ -180,7 +180,7 @@ const updateOracleLiveCells = async (liveCells, prices) => {
         version: '0x0',
         cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
         headerDeps: [],
-        inputs: [generateInput()],
+        inputs: [generateInput(cell)],
         outputs: [
           {
             capacity: `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`,
