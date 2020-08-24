@@ -43,6 +43,7 @@ For example:
 ### Getting Started
 
 Before starting the project, you should edit the `.env` file with your private key to sign above transactions later.
+You should make sure the balance of the account is enough and if you have not enough Testnet ckb, you can claim free Testnet ckb from [CKB Faucet](https://faucet.nervos.org).
 
 ```shell
 $ git clone https://github.com/duanyytop/ckb-band-oracle
