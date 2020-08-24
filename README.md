@@ -24,6 +24,20 @@ An oracle fetching oracle data from [BandChain](https://github.com/bandprotocol/
 - Fetch latest band oracle data from BandChain
 - Update cells data which contain band oracle data with new oracle data per block
 
+### Band Oracle Data Format
+
+Now `ckb-band-oracle` provides ten tokens' oracle prices which are ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND'].
+
+`utf8ToHex('band') + hex(index of token list) + u32(timestamp) + u64(price)`
+
+For example:
+
+`0x62616e64055f437c0c00000000000650e7` means the index of token list is 05 (BAT) and the timestamp is `5f437c0c`(1598258188) and the price of BAT is \$0.413927.
+
+> Note: `utf8ToHex('band') = 0x62616e64`
+
+`ckb-band-oracle` provides two methods to generate and parse band oracle data in [utils](https://github.com/duanyytop/ckb-band-oracle/blob/master/src/utils/utils.js)
+
 ### Getting Started
 
 Before starting the project, you should edit the `.env` file with your private key to sign above transactions later.
