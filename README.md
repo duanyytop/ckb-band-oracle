@@ -26,7 +26,9 @@ An oracle fetching oracle data from [BandChain](https://github.com/bandprotocol/
 
 ### Band Oracle Data Format
 
-Now `ckb-band-oracle` provides ten tokens' oracle prices which are ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND'].
+Now `ckb-band-oracle` provides ten tokens' oracle prices which are `['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND']`.
+
+And the cell data format:
 
 `utf8ToHex('band') + hex(index of token list) + u32(timestamp) + u64(price)`
 
