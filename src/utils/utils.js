@@ -8,12 +8,14 @@ const remove0x = hex => {
 }
 
 const containBandData = cells => {
-  cells.forEach(cell => {
+  let result = false
+  for (let cell of cells) {
     if (remove0x(cell.output_data).startsWith(BAND_SYMBOL)) {
-      return true
+      result = true
+      break
     }
-  })
-  return false
+  }
+  return result
 }
 
 const intToHex = num => {
@@ -30,7 +32,7 @@ const intToU32 = num => {
 }
 
 const u32ToInt = hex => {
-  if (typeof hex !== 'string' || !hex.startsWith('0x')) {
+  if (typeof hex !== 'string') {
     throw new Error('Invalid data type')
   }
   return parseInt(remove0x(hex), 16)
@@ -45,7 +47,7 @@ const intToU64 = num => {
 }
 
 const u64ToInt = hex => {
-  if (typeof hex !== 'string' || !hex.startsWith('0x')) {
+  if (typeof hex !== 'string') {
     throw new Error('Invalid data type')
   }
   return parseInt(remove0x(hex), 16)
@@ -56,12 +58,22 @@ const generateBandData = (price, index) => {
   return `0x${BAND_SYMBOL}${intToHex(index)}${intToU32(timestamp)}${intToU64(price)}`
 }
 
+const parseBandData = data => {
+  const temp = remove0x(data)
+  const start = BAND_SYMBOL.length
+  const index = parseInt(temp.substring(start, start + 2), 16)
+  const timestamp = u32ToInt(temp.substring(start + 2, start + 10))
+  const price = u64ToInt(temp.substring(start + 10))
+  return { index, timestamp, price }
+}
+
 module.exports = {
   remove0x,
   containBandData,
-  generateBandData,
   intToU32,
   u32ToInt,
   intToU64,
   u64ToInt,
+  generateBandData,
+  parseBandData,
 }
