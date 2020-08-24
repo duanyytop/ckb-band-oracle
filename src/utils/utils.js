@@ -1,4 +1,3 @@
-const BN = require('bn.js')
 const { BAND_SYMBOL } = require('./const')
 
 const remove0x = hex => {
@@ -22,30 +21,30 @@ const intToHex = num => {
   return hex.length % 2 === 1 ? `0${hex}` : hex
 }
 
-const intToU8 = num => {
+const intToU32 = num => {
   if (typeof num !== 'number') {
     throw new Error('Invalid data type')
   }
-  const u8 = num.toString(16)
-  return `${'0'.repeat(8 - u8.length)}${u8}`
+  const u32 = num.toString(16)
+  return `${'0'.repeat(8 - u32.length)}${u32}`
 }
 
-const u8ToInt = hex => {
+const u32ToInt = hex => {
   if (typeof hex !== 'string' || !hex.startsWith('0x')) {
     throw new Error('Invalid data type')
   }
   return parseInt(remove0x(hex), 16)
 }
 
-const intToU16 = num => {
+const intToU64 = num => {
   if (typeof num !== 'number') {
     throw new Error('Invalid data type')
   }
-  const u16 = num.toString(16)
-  return `${'0'.repeat(16 - u16.length)}${u16}`
+  const u64 = num.toString(16)
+  return `${'0'.repeat(16 - u64.length)}${u64}`
 }
 
-const u16ToInt = hex => {
+const u64ToInt = hex => {
   if (typeof hex !== 'string' || !hex.startsWith('0x')) {
     throw new Error('Invalid data type')
   }
@@ -54,15 +53,15 @@ const u16ToInt = hex => {
 
 const generateBandData = (price, index) => {
   const timestamp = Math.floor(new Date().getTime() / 1000)
-  return `0x${BAND_SYMBOL}${intToHex(index)}${intToU8(timestamp)}${intToU16(price)}`
+  return `0x${BAND_SYMBOL}${intToHex(index)}${intToU32(timestamp)}${intToU64(price)}`
 }
 
 module.exports = {
   remove0x,
   containBandData,
   generateBandData,
-  intToU8,
-  u8ToInt,
-  intToU16,
-  u16ToInt,
+  intToU32,
+  u32ToInt,
+  intToU64,
+  u64ToInt,
 }
