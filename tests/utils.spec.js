@@ -1,4 +1,4 @@
-const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData, generateBandData, remove0x } = require('../utils/utils')
+const { intToU32, u32ToInt, intToU64, u64ToInt, parseBandData, generateBandData, remove0x } = require('../src/utils/utils')
 
 describe('Utils tests', () => {
   it('intToU32', async () => {
