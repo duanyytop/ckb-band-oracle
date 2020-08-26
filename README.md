@@ -4,7 +4,9 @@
 [![Github Actions CI](https://github.com/duanyytop/ckb-band-oracle/workflows/CI/badge.svg?branch=master)](https://github.com/duanyytop/ckb-band-oracle/actions)
 [![Telegram Group](https://cdn.rawgit.com/Patrolavia/telegram-badge/8fe3382b/chat.svg)](https://t.me/nervos_ckb_dev)
 
-An oracle fetching oracle data from [BandChain](https://github.com/bandprotocol/bandchain) and posting to [Nervos CKB](https://nervos.org)
+An oracle fetching oracle data from [Band Protocol](https://bandprotocol.com/) and posting to [Nervos CKB](https://nervos.org)
+
+[`ckb-oracle-bridge`](https://github.com/duanyytop/ckb-oracle-bridge) provides a server to fetch Band Protocol oracle data and a web application to display oracle data.
 
 ### How to work
 
