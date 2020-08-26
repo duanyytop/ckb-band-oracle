@@ -17,8 +17,9 @@ const startPoster = async () => {
     }
   })
 
-  ws.on('close', function close(code, reason) {
+  ws.on('close', async function close(code, reason) {
     console.info('Websocket Close', code, reason)
+    await postBandOracle()
     startPoster()
   })
 }
