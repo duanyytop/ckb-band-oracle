@@ -1,4 +1,4 @@
-# ckb-band-oracle
+# CKB Band Oracle
 
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/duanyytop/ckb-band-oracle/blob/master/LICENSE)
 [![Github Actions CI](https://github.com/duanyytop/ckb-band-oracle/workflows/CI/badge.svg?branch=master)](https://github.com/duanyytop/ckb-band-oracle/actions)
