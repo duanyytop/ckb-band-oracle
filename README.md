@@ -6,7 +6,7 @@
 
 An oracle fetching oracle data from [Band Protocol](https://bandprotocol.com/) and posting to [Nervos CKB](https://nervos.org)
 
-[`ckb-oracle-bridge`](https://github.com/duanyytop/ckb-oracle-bridge) provides a server to fetch Band Protocol oracle data and a web application to display oracle data.
+[`ckb-oracle-bridge`](https://github.com/duanyytop/ckb-oracle-bridge) provides a server to fetch Band Protocol oracle data and a web application to display oracle data and uses [rich-node](https://github.com/ququzone/ckb-rich-node) as ckb rpc and indexer server.
 
 ### How to work
 
