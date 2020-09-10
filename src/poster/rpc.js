@@ -173,34 +173,39 @@ const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
   const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
-  const requests = []
+  let rawTx = {
+    version: '0x0',
+    cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
+    headerDeps: [],
+  }
+  let inputs = []
+  let outputs = []
+  let outputsData = []
   liveCells
     .filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
-    .forEach(cell => {
+    .forEach((cell, cellIndex) => {
       const { index } = parseBandData(cell.output_data)
-      const rawTx = {
-        version: '0x0',
-        cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
-        headerDeps: [],
-        inputs: [generateInput(cell)],
-        outputs: [
-          {
-            capacity: `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`,
-            lock,
-            type: null,
-          },
-        ],
-        outputsData: [pricesData[index]],
-      }
-      rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
-      const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
-      requests.push(['sendTransaction', signedTx])
+      inputs.push(generateInput(cell))
+      outputs.push({
+        capacity:
+          cellIndex === liveCells.length - 1
+            ? `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`
+            : cell.output.capacity,
+        lock,
+        type: null,
+      })
+      outputsData.push(pricesData[index])
     })
-  const batch = ckb.rpc.createBatchRequest(requests)
-  batch
-    .exec()
-    .then(console.info)
-    .catch(console.error)
+  rawTx = {
+    ...rawTx,
+    inputs,
+    outputs,
+    outputsData,
+    witnesses: inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' })),
+  }
+  const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
+  const txHash = await ckb.rpc.sendTransaction(signedTx)
+  console.info(`Update oracle cells data tx: ${txHash}`)
 }
 
 module.exports = {
