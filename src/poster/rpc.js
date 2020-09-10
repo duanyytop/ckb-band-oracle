@@ -7,8 +7,8 @@ const { remove0x, generateBandData, parseBandData } = require('../utils/utils')
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
 const ARGS = '0x' + ckb.utils.blake160(PUB_KEY, 'hex')
-const FEE = new BN(1000)
-const EACH_CAPACITY = new BN(20000000000)
+const FEE = new BN(2000)
+const EACH_CAPACITY = new BN(40000000000)
 
 const secp256k1LockScript = async () => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
@@ -181,21 +181,20 @@ const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
   let inputs = []
   let outputs = []
   let outputsData = []
-  liveCells
-    .filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
-    .forEach((cell, cellIndex) => {
-      const { index } = parseBandData(cell.output_data)
-      inputs.push(generateInput(cell))
-      outputs.push({
-        capacity:
-          cellIndex === liveCells.length - 1
-            ? `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`
-            : cell.output.capacity,
-        lock,
-        type: null,
-      })
-      outputsData.push(pricesData[index])
+  const bandLiveCells = liveCells.filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
+  bandLiveCells.forEach((cell, cellIndex) => {
+    const { index } = parseBandData(cell.output_data)
+    inputs.push(generateInput(cell))
+    outputs.push({
+      capacity:
+        cellIndex === bandLiveCells.length - 1
+          ? `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`
+          : cell.output.capacity,
+      lock,
+      type: null,
     })
+    outputsData.push(pricesData[index])
+  })
   rawTx = {
     ...rawTx,
     inputs,
