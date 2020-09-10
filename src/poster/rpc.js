@@ -7,8 +7,8 @@ const { remove0x, generateBandData, parseBandData } = require('../utils/utils')
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
 const ARGS = '0x' + ckb.utils.blake160(PUB_KEY, 'hex')
-const FEE = new BN(1000)
-const EACH_CAPACITY = new BN(20000000000)
+const FEE = new BN(2000)
+const EACH_CAPACITY = new BN(40000000000)
 
 const secp256k1LockScript = async () => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
@@ -173,34 +173,38 @@ const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
   const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
-  const requests = []
-  liveCells
-    .filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
-    .forEach(cell => {
-      const { index } = parseBandData(cell.output_data)
-      const rawTx = {
-        version: '0x0',
-        cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
-        headerDeps: [],
-        inputs: [generateInput(cell)],
-        outputs: [
-          {
-            capacity: `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`,
-            lock,
-            type: null,
-          },
-        ],
-        outputsData: [pricesData[index]],
-      }
-      rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
-      const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
-      requests.push(['sendTransaction', signedTx])
+  let rawTx = {
+    version: '0x0',
+    cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],
+    headerDeps: [],
+  }
+  let inputs = []
+  let outputs = []
+  let outputsData = []
+  const bandLiveCells = liveCells.filter(cell => remove0x(cell.output_data).startsWith(BAND_SYMBOL))
+  bandLiveCells.forEach((cell, cellIndex) => {
+    const { index } = parseBandData(cell.output_data)
+    inputs.push(generateInput(cell))
+    outputs.push({
+      capacity:
+        cellIndex === bandLiveCells.length - 1
+          ? `0x${new BN(remove0x(cell.output.capacity), 'hex').sub(FEE).toString(16)}`
+          : cell.output.capacity,
+      lock,
+      type: null,
     })
-  const batch = ckb.rpc.createBatchRequest(requests)
-  batch
-    .exec()
-    .then(console.info)
-    .catch(console.error)
+    outputsData.push(pricesData[index])
+  })
+  rawTx = {
+    ...rawTx,
+    inputs,
+    outputs,
+    outputsData,
+    witnesses: inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' })),
+  }
+  const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
+  const txHash = await ckb.rpc.sendTransaction(signedTx)
+  console.info(`Update oracle cells data tx: ${txHash}`)
 }
 
 module.exports = {
