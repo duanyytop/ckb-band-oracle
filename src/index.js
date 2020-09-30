@@ -13,7 +13,9 @@ const startPoster = async () => {
     if (JSON.parse(data).params) {
       const tipNumber = JSON.parse(JSON.parse(data).params.result).number
       console.info('New Block', tipNumber)
-      await postBandOracle()
+      if (parseInt(tipNumber, 16) % 5 === 0) {
+        await postBandOracle()
+      }
     }
   })
 
