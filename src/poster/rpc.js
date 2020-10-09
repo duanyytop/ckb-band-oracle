@@ -7,7 +7,7 @@ const { remove0x, generateBandData, parseBandData } = require('../utils/utils')
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
 const ARGS = '0x' + ckb.utils.blake160(PUB_KEY, 'hex')
-const FEE = new BN(2000)
+const FEE = new BN(5000)
 const EACH_CAPACITY = new BN(40000000000)
 
 const secp256k1LockScript = async () => {
@@ -131,9 +131,13 @@ const generateEmptyLiveCells = async (liveCells, length) => {
     outputsData: multiOutputsData(outputs.length),
   }
   rawTx.witnesses = rawTx.inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' }))
-  const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
-  const txHash = await ckb.rpc.sendTransaction(signedTx)
-  console.info(`Transaction has been sent with tx hash ${txHash}`)
+  try {
+    const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
+    const txHash = await ckb.rpc.sendTransaction(signedTx)
+    console.info(`Transaction has been sent with tx hash ${txHash}`)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 const generateOracleLiveCells = async (liveCells, prices, timestamp) => {
@@ -202,9 +206,13 @@ const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
     outputsData,
     witnesses: inputs.map((_, i) => (i > 0 ? '0x' : { lock: '', inputType: '', outputType: '' })),
   }
-  const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
-  const txHash = await ckb.rpc.sendTransaction(signedTx)
-  console.info(`Update oracle cells data tx: ${txHash}`)
+  try {
+    const signedTx = ckb.signTransaction(PRI_KEY)(rawTx)
+    const txHash = await ckb.rpc.sendTransaction(signedTx)
+    console.info(`Update oracle cells data tx: ${txHash}`)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 module.exports = {
