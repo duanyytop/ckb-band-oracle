@@ -1,24 +1,21 @@
 const BandChain = require('@bandprotocol/bandchain.js')
 const endpoint = 'http://poa-api.bandchain.org'
 
-const SYMBOLS = ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND']
+const SYMBOLS = ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND', 'CKB']
 
-const oracleScriptId = 8
-const params = {
-  symbols: SYMBOLS,
-  multiplier: 1000000,
-}
-const validatorCounts = {
-  minCount: 3,
-  askCount: 4,
-}
+/**
+ * {
+    pair: 'BTC/USD',
+    rate: 13697.800000000001,
+    updated: { base: 1604295641, quote: 1604295671 }
+  },
+ */
 
 const fetchBandOracle = async () => {
   const bandChain = new BandChain(endpoint)
-  const oracleScript = await bandChain.getOracleScript(oracleScriptId)
-  const { result, resolve_time } = await bandChain.getLastMatchingRequestResult(oracleScript, params, validatorCounts)
-  console.info(result, resolve_time)
-  return { prices: result.rates, timestamp: parseInt(resolve_time) }
+  const refs = await bandChain.getReferenceData(SYMBOLS.map(symbol => `${symbol}/USD`))
+  const prices = refs.map(ref => ref.rate * 10 ** 6)
+  return { prices, timestamp: refs[0].updated.base }
 }
 
 module.exports = {

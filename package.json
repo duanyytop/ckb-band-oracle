@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@bandprotocol/bandchain.js": "^1.0.25",
+    "@bandprotocol/bandchain.js": "^1.1.5",
     "@bandprotocol/obi.js": "^1.0.7",
     "@nervosnetwork/ckb-sdk-core": "^0.34.0",
     "bn.js": "^5.1.3",
