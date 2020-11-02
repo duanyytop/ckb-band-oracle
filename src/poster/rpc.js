@@ -167,10 +167,7 @@ const generateOracleLiveCells = async (liveCells, prices, timestamp) => {
       requests.push(['sendTransaction', signedTx])
     })
   const batch = ckb.rpc.createBatchRequest(requests)
-  batch
-    .exec()
-    .then(console.info)
-    .catch(console.error)
+  batch.exec().then(console.info).catch(console.error)
 }
 
 const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
