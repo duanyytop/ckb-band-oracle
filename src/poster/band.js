@@ -14,7 +14,7 @@ const SYMBOLS = ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP'
 const fetchBandOracle = async () => {
   const bandChain = new BandChain(endpoint)
   const refs = await bandChain.getReferenceData(SYMBOLS.map(symbol => `${symbol}/USD`))
-  const prices = refs.map(ref => ref.rate * 10 ** 6)
+  const prices = refs.map(ref => parseInt(ref.rate * 10 ** 6))
   return { prices, timestamp: refs[0].updated.base }
 }
 
