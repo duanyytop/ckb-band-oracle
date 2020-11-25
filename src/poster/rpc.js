@@ -140,10 +140,10 @@ const generateEmptyLiveCells = async (liveCells, length) => {
   }
 }
 
-const generateOracleLiveCells = async (liveCells, prices, timestamp) => {
+const generateOracleLiveCells = async (liveCells, pricesWithTimestamps) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
-  const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
+  const pricesData = pricesWithTimestamps.map(({ price, timestamp }, index) => generateBandData(price, index, timestamp))
   const requests = []
   liveCells
     .filter(cell => new BN(remove0x(cell.output.capacity), 16).cmp(EACH_CAPACITY) === 0)
@@ -170,10 +170,10 @@ const generateOracleLiveCells = async (liveCells, prices, timestamp) => {
   batch.exec().then(console.info).catch(console.error)
 }
 
-const updateOracleLiveCells = async (liveCells, prices, timestamp) => {
+const updateOracleLiveCells = async (liveCells, pricesWithTimestamps) => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
   const lock = await secp256k1LockScript()
-  const pricesData = prices.map((price, index) => generateBandData(price, index, timestamp))
+  const pricesData = pricesWithTimestamps.map(({ price, timestamp }, index) => generateBandData(price, index, timestamp))
   let rawTx = {
     version: '0x0',
     cellDeps: [{ outPoint: secp256k1Dep.outPoint, depType: 'depGroup' }],

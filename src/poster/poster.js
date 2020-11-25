@@ -10,12 +10,12 @@ const postBandOracle = async () => {
     await generateEmptyLiveCells(liveCells, length)
   } else if (!containBandData(liveCells)) {
     console.info('Post Oracle to Live Cells Data')
-    const { prices, timestamp } = await fetchBandOracle()
-    await generateOracleLiveCells(liveCells, prices, timestamp)
+    const { pricesWithTimestamps } = await fetchBandOracle()
+    await generateOracleLiveCells(liveCells, pricesWithTimestamps)
   } else {
     console.info('Update Oracle Cells Data')
-    const { prices, timestamp } = await fetchBandOracle()
-    await updateOracleLiveCells(liveCells, prices, timestamp)
+    const { pricesWithTimestamps } = await fetchBandOracle()
+    await updateOracleLiveCells(liveCells, pricesWithTimestamps)
   }
 }
 
