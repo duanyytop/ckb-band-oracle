@@ -1,7 +1,9 @@
-const BandChain = require('@bandprotocol/bandchain.js')
-const endpoint = 'http://poa-api.bandchain.org'
+const fetch = require('node-fetch')
+const endpoint = 'http://guanyu-testnet3-query.bandchain.org'
 
 const SYMBOLS = ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP', 'BAND', 'CKB']
+const ask_count = 16
+const min_count = 10
 
 /**
  * {
@@ -12,10 +14,20 @@ const SYMBOLS = ['BTC', 'ETH', 'DAI', 'REP', 'ZRX', 'BAT', 'KNC', 'LINK', 'COMP'
  */
 
 const fetchBandOracle = async () => {
-  const bandChain = new BandChain(endpoint)
-  const refs = await bandChain.getReferenceData(SYMBOLS.map(symbol => `${symbol}/USD`))
-  const prices = refs.map(ref => parseInt(ref.rate * 10 ** 6))
-  return { prices, timestamp: refs[0].updated.base }
+  let res = await fetch(endpoint + `/oracle/request_prices`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ symbols: SYMBOLS, ask_count, min_count }, null, '  '),
+  })
+  res = await res.json()
+  const pricesWithTimestamps = res['result'].map(({ px, multiplier, resolve_time }) => ({
+    price: Math.round((px * 1e6) / multiplier),
+    timestamp: Number(resolve_time),
+  }))
+
+  return { pricesWithTimestamps }
 }
 
 module.exports = {
