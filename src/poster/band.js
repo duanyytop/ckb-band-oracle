@@ -14,7 +14,7 @@ const min_count = 10
  */
 
 const fetchBandOracle = async () => {
-  let res = await fetch(endpoint + `/oracle/request_prices`, {
+  let res = await fetch(endpoint + '/oracle/request_prices', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
