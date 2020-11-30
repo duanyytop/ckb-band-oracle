@@ -7,8 +7,8 @@ const { remove0x, generateBandData, parseBandData } = require('../utils/utils')
 const ckb = new CKB(CKB_NODE_URL)
 const PUB_KEY = ckb.utils.privateKeyToPublicKey(PRI_KEY)
 const ARGS = '0x' + ckb.utils.blake160(PUB_KEY, 'hex')
-const FEE = new BN(5000)
-const EACH_CAPACITY = new BN(40000000000)
+const FEE = new BN(25000)
+const EACH_CAPACITY = new BN(500000000000)
 
 const secp256k1LockScript = async () => {
   const secp256k1Dep = (await ckb.loadDeps()).secp256k1Dep
